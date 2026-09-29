@@ -117,6 +117,15 @@ export function buildSummarizerQueryOptions(args: {
     env: getApiEnv(),
     resume: sessionId,
     persistSession: false,
+    // Summarization must never execute tools: a resumed session otherwise
+    // keeps full tool access in the recorded cwd, letting a stale/impostor
+    // continuation edit files or run commands during a background sync.
+    // Three layers, in case any one is unhonored by a given SDK version:
+    // empty allow-list, explicit deny-all backstop, and plan mode (which the
+    // SDK enforces independently of the tool lists).
+    allowedTools: [],
+    disallowedTools: ['*'],
+    permissionMode: 'plan',
     // Resume looks up the session under ~/.claude/projects/<encoded-cwd>/, so pass the recorded cwd when it still exists on disk.
     ...(cwd && fs.existsSync(cwd) ? { cwd } : {}),
     // Don't override systemPrompt when resuming — the resumed session's prompt stays in effect.
