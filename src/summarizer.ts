@@ -358,6 +358,10 @@ export function buildSummarizerQueryOptions(args: {
     // session from executing the session's pending work in the user's repo
     // (#116/#134). Empty tool list = no built-in tools available.
     tools: [],
+    // Belt and braces (falcon fork): deny every tool and run in plan mode, so a
+    // resumed session cannot act even if an SDK version ignores `tools`.
+    disallowedTools: ["*"],
+    permissionMode: "plan",
     // Summarizers never call tools, so skip the user's MCP config entirely.
     // Without this, every summarization subprocess launches all configured MCP
     // servers; with concurrent summarizations that fans out to hundreds of
